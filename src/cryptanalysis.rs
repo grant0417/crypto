@@ -20,8 +20,8 @@ pub fn break_xor_single_byte(code: &[u8]) -> Vec<(f64, String)> {
 
 /// Removes string that a most unlikely to be readable text.
 pub fn prune<S>(plaintext_possibilities: &[S]) -> Vec<&str>
-where
-    S: AsRef<str>,
+    where
+        S: AsRef<str>,
 {
     plaintext_possibilities
         .iter()
@@ -35,8 +35,8 @@ where
 
 /// Completes a frequency analysis of a
 pub fn frequency_analysis<S>(plaintext_possibilities: &[S]) -> Vec<(f64, &str)>
-where
-    S: AsRef<str>,
+    where
+        S: AsRef<str>,
 {
     let mut results: Vec<_> = plaintext_possibilities
         .iter()
@@ -88,16 +88,16 @@ pub fn detect_ecb(bytes: &[u8]) -> bool {
     if bytes.len() % 16 != 0 {
         println!("False {}", bytes.len());
         // If the bytes are not a multiple of 16 then it is not encrypted with AES
-        return false
+        return false;
     }
-    for i in 0..bytes.len()/16 {
-        for j in i+1..bytes.len()/16 {
+    for i in 0..bytes.len() / 16 {
+        for j in i + 1..bytes.len() / 16 {
             for c in 0..16 {
                 if bytes[i * 16 + c] != bytes[j * 16 + c] {
-                    break
+                    break;
                 }
                 if c == 15 {
-                    return true
+                    return true;
                 }
             }
         }

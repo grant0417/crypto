@@ -57,6 +57,8 @@ lazy_static! {
     /// A lookup table build statically for the AES substitution box.
     /// The first part of the tuple is the s-box and the second part is
     /// the inverse s-box.
+    ///
+    /// https://en.wikipedia.org/wiki/Rijndael_S-box
     static ref SBOX: ([u8; 256], [u8; 256]) = {
         let mut sbox = [0; 256];
         let mut inv_sbox = [0; 256];
@@ -94,7 +96,7 @@ pub enum Mode {
     /// Electronic Code Book
     ECB,
     /// Cipher Block Chaining - The argument is the initialization vector
-    CBC(Vec<u8>)
+    CBC(Vec<u8>),
 }
 
 /// Encrypts data using a specified key and mode
@@ -104,10 +106,10 @@ pub fn aes_encrypt(data: &[u8], key: &AESKey, mode: &Mode) -> Vec<u8> {
     match mode {
         Mode::ECB => {
             aes_ecb(data.as_mut_slice(), key);
-        },
+        }
         Mode::CBC(iv) => {
             aes_cbc(data.as_mut_slice(), key, iv);
-        },
+        }
     }
     data
 }
@@ -121,10 +123,10 @@ pub fn aes_decrypt(data: &[u8], key: &AESKey, mode: &Mode) -> Vec<u8> {
     match mode {
         Mode::ECB => {
             inv_aes_ecb(data.as_mut_slice(), key);
-        },
+        }
         Mode::CBC(iv) => {
             inv_aes_cbc(data.as_mut_slice(), key, iv);
-        },
+        }
     }
     utils::remove_padding_pkcs8(&mut data).expect("The data was not properly padded");
     data
@@ -292,6 +294,8 @@ impl AESKey {
 }
 
 /// The AES key expansion algorithm that returns a Vec of each round's Vec of bytes
+///
+/// https://en.wikipedia.org/wiki/AES_key_schedule
 fn key_expansion(key: &AESKey) -> Vec<Vec<u8>> {
     let (key_u32, rounds) = match &key {
         AESKey::AES128(k) => (k.as_ref(), 11),
@@ -302,6 +306,7 @@ fn key_expansion(key: &AESKey) -> Vec<Vec<u8>> {
 
     let mut expanded_keys: Vec<u32> = Vec::with_capacity(4 * rounds);
 
+    // https://en.wikipedia.org/wiki/AES_key_schedule#Round_constants
     let mut rc_list = Vec::with_capacity(rounds);
 
     let mut prev_rc: u8 = 1;
@@ -464,6 +469,8 @@ fn inv_shift_rows(block: &mut [u8]) {
 }
 
 /// Runs the mix column algorithm on each column
+///
+/// https://en.wikipedia.org/wiki/Rijndael_MixColumns
 fn mix_columns(block: &mut [u8]) {
     for c in 0..4 {
         mix_column(&mut columns_of_block(block, c))
@@ -471,6 +478,8 @@ fn mix_columns(block: &mut [u8]) {
 }
 
 /// Runs the inverse mix column algorithm on each column
+///
+/// https://en.wikipedia.org/wiki/Rijndael_MixColumns#InverseMixColumns
 fn inv_mix_columns(block: &mut [u8]) {
     for c in 0..4 {
         inv_mix_column(&mut columns_of_block(block, c))
@@ -701,5 +710,4 @@ fn test_encrypt_decrypt() {
     println!("{}", decrypt_message);
 
     assert_eq!(message, decrypt_message.as_str())
-
 }

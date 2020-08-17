@@ -1,4 +1,10 @@
-/// Converts a hex string to a Vec of bytes
+/// Converts a hex string to a `Vec` of bytes
+///
+/// ```
+/// # use crypto::utils::hex_to_bytes;
+/// let bytes = hex_to_bytes("12ab9f");
+/// println!("{:?}", bytes); // [18, 171, 159]
+/// ```
 pub fn hex_to_bytes(hex: &str) -> Vec<u8> {
     (0..hex.len())
         .step_by(2)
@@ -7,6 +13,12 @@ pub fn hex_to_bytes(hex: &str) -> Vec<u8> {
 }
 
 /// Converts a byte slice to a String
+///
+/// ```
+/// # use crypto::utils::bytes_to_string;
+/// let string = bytes_to_string(&[18, 171, 159]);
+/// println!("{:?}", string); // "12ab9f"
+/// ```
 pub fn bytes_to_hex(bytes: &[u8]) -> String {
     bytes.iter().map(|b| format!("{:02x?}", b)).collect()
 }
@@ -164,7 +176,7 @@ pub fn pad_pkcs7(text: &mut Vec<u8>, block_size: usize) {
 pub fn slice_pkcs8(text: &[u8]) -> Option<&[u8]> {
     let padding_amount = *text.last().unwrap_or(&0);
     if text.iter().rev().take_while(|b| **b == padding_amount).count() == padding_amount as usize {
-        Some(&text[..text.len()-padding_amount as usize])
+        Some(&text[..text.len() - padding_amount as usize])
     } else {
         None
     }

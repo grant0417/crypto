@@ -72,7 +72,7 @@ impl MersenneTwister {
     fn twist(&mut self) {
         for i in 0..self.n {
             let x = (self.mt[i] & self.upper_mask)
-            + (self.mt[(i+1) % self.n] & self.lower_mask);
+                + (self.mt[(i + 1) % self.n] & self.lower_mask);
             let mut x_a = x >> 1;
             if x % 2 != 0 {
                 x_a ^= self.a;
