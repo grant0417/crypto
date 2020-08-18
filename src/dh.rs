@@ -1,9 +1,10 @@
 use crate::utils;
-use num_bigint::RandBigInt;
+use num::bigint::RandBigInt;
+use num::BigUint;
 
 /// Generates a random private Diffie-Hellman key
 fn generate_private_key(p: &[u8]) -> Vec<u8> {
-    let p = num_bigint::BigUint::from_bytes_be(p);
+    let p = BigUint::from_bytes_be(p);
 
     let mut rng = rand::thread_rng();
 
@@ -12,19 +13,19 @@ fn generate_private_key(p: &[u8]) -> Vec<u8> {
 
 /// Generates a Diffie-Hellman public key from a private key
 fn generate_public_key(p: &[u8], g: usize, private_key: &[u8]) -> Vec<u8> {
-    let p = num_bigint::BigUint::from_bytes_be(p);
-    let g = num_bigint::BigUint::from(g);
+    let p = BigUint::from_bytes_be(p);
+    let g = BigUint::from(g);
 
-    let private_key = num_bigint::BigUint::from_bytes_be(private_key);
+    let private_key = BigUint::from_bytes_be(private_key);
 
     g.modpow(&private_key, &p).to_bytes_be()
 }
 
 /// Derives the common secret from my private and their public keys
 fn derive_shared_secret_key(p: &[u8], my_private: &[u8], their_public: &[u8]) -> Vec<u8> {
-    let p = num_bigint::BigUint::from_bytes_be(p);
-    let their_public = num_bigint::BigUint::from_bytes_be(their_public);
-    let my_private = num_bigint::BigUint::from_bytes_be(my_private);
+    let p = BigUint::from_bytes_be(p);
+    let their_public = BigUint::from_bytes_be(their_public);
+    let my_private = BigUint::from_bytes_be(my_private);
 
     their_public.modpow(&my_private, &p).to_bytes_be()
 }

@@ -12,6 +12,7 @@ dependent on `crypto::utils` and the Rust standard library.
 * `crypto::aes` - An implementation of the Advanced Encryption Standard (AES), the most widely used block cipher.
 * `crypto::mersenne_twister` - An implementation of the most common pseudo-random number generator, the Mersenne Twister.
 * `crypto::dh` - An implementation of the Diffie-Hellman key exchange, a method for sharing cryptographic keys.
+* `crypto::primes` - Tools for generating primes and testing primarily. Useful for RSA.
 * `crypto::cryptanalysis` - Tools to attack crypto systems.
 * `crypto::utils` - Wrappers and utilities for working with base64, hex, byte arrays, and random number generators.
 
