@@ -19,6 +19,11 @@ pub mod aes;
 /// A method for getting a common key for two people with each having a public and private key.
 pub mod dh;
 
+/// [RSA (Rivest–Shamir–Adleman)](https://en.wikipedia.org/wiki/RSA_(cryptosystem))
+///
+/// A public-key crypto system.
+pub mod rsa;
+
 /// [Mersenne Twister](https://en.wikipedia.org/wiki/Mersenne_Twister)
 ///
 /// A pseudo-random number generator. Not cryptographically secure.

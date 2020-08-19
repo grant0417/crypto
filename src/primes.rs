@@ -4,7 +4,7 @@ use num::{BigUint, One, Integer, bigint::RandBigInt};
 /// likely a prime or false if it is composite.
 ///
 /// https://en.wikipedia.org/wiki/Miller-Rabin_primality_test
-pub fn miller_rabin_test(n: &BigUint, rounds: usize) -> bool {
+pub fn miller_rabin_test(n: &BigUint, rounds: u64) -> bool {
     if n % 2u64 == BigUint::from(0u64) || n <= &BigUint::from(3u64) {
         return false
     }
@@ -36,6 +36,10 @@ pub fn miller_rabin_test(n: &BigUint, rounds: usize) -> bool {
     true
 }
 
+// TODO: Implement prime lucas test
+
+// TODO: Implement Baillie-PSW test
+
 /// Factors out powers of 2 from a BigUint
 ///
 /// Returns (power: u64, constant: power) such that n = 2^power * constant
@@ -49,9 +53,9 @@ fn factor_out_powers(n: &BigUint) -> (u64, BigUint) {
 /// Generates a prime with a size of `bytes`.
 ///
 /// Warning: Is very slow for large sizes.
-pub fn gen_prime(bytes: usize, rounds: usize) -> BigUint {
+pub fn gen_prime(bits: u64, rounds: u64) -> BigUint {
     let mut rng = rand::thread_rng();
-    let mut potential_prime = rng.gen_biguint((bytes * 8) as u64);
+    let mut potential_prime = rng.gen_biguint(bits);
     if potential_prime.is_even() {
         potential_prime += 1u64;
     }
@@ -82,6 +86,6 @@ fn is_prime_test() {
 
 #[test]
 fn gen_prime_test() {
-    let prime = gen_prime(200, 40);
+    let prime = gen_prime(10, 40);
     eprintln!("{}", prime);
 }
