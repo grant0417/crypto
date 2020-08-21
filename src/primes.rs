@@ -6,7 +6,7 @@ use num::{BigUint, One, Integer, bigint::RandBigInt};
 /// https://en.wikipedia.org/wiki/Miller-Rabin_primality_test
 pub fn miller_rabin_test(n: &BigUint, rounds: u64) -> bool {
     if n % 2u64 == BigUint::from(0u64) || n <= &BigUint::from(3u64) {
-        return false
+        return false;
     }
 
     let one = BigUint::one();
@@ -23,7 +23,7 @@ pub fn miller_rabin_test(n: &BigUint, rounds: u64) -> bool {
         if x.is_one() || x == n_1 {
             continue 'WitnessLoop;
         }
-        for _ in 0..r-1 {
+        for _ in 0..r - 1 {
             let x = x.modpow(&two, &n);
             if x == one {
                 return false;
@@ -31,7 +31,7 @@ pub fn miller_rabin_test(n: &BigUint, rounds: u64) -> bool {
                 continue 'WitnessLoop;
             }
         }
-        return false
+        return false;
     }
     true
 }
@@ -62,7 +62,7 @@ pub fn gen_prime(bits: u64, rounds: u64) -> BigUint {
 
     loop {
         if miller_rabin_test(&potential_prime, rounds) {
-            break
+            break;
         } else {
             potential_prime += 2u64;
         }
@@ -74,14 +74,19 @@ pub fn gen_prime(bits: u64, rounds: u64) -> BigUint {
 #[test]
 fn is_prime_test() {
     let semi_prime =
-        BigUint::parse_bytes("26062623684139844921529879266674432197085925380486406416164785191859999628542069361450283931914514618683512198164805919882053057222974116478065095809832377336510711545759".as_bytes(), 10).unwrap();
+        BigUint::parse_bytes(b"26062623684139844921529879266674432197085925380486406416164785191859999628542069361450283931914514618683512198164805919882053057222974116478065095809832377336510711545759", 10).unwrap();
 
     assert_eq!(miller_rabin_test(&semi_prime, 100), false);
 
     let prime =
-        BigUint::parse_bytes("64135289477071580278790190170577389084825014742943447208116859632024532344630238623598752668347708737661925585694639798853367".as_bytes(), 10).unwrap();
+        BigUint::parse_bytes(b"64135289477071580278790190170577389084825014742943447208116859632024532344630238623598752668347708737661925585694639798853367", 10).unwrap();
 
     assert_eq!(miller_rabin_test(&prime, 100), true);
+
+    let prime2 =
+        BigUint::parse_bytes(b"1169809367327212570704813632106852886389036911", 10).unwrap();
+
+    assert_eq!(miller_rabin_test(&prime2, 400), true);
 }
 
 #[test]

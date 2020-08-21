@@ -17,17 +17,17 @@ pub struct RSAPrivateKey {
 }
 
 /// Generates a keypair of a `RSAPublicKey` and `RSAPrivateKey`.
-pub fn rsa_generate_keypair(key_length: u64, rounds: u64) -> (RSAPublicKey, RSAPrivateKey) {
-    let e = BigUint::from(65537u64);
+pub fn rsa_generate_keypair(e: u64, key_length: u64, rounds: u64) -> (RSAPublicKey, RSAPrivateKey) {
+    let e = BigUint::from(e);
 
-    let mut p = primes::gen_prime(key_length/2, rounds);
+    let mut p = primes::gen_prime(key_length / 2, rounds);
     while &p % &e == BigUint::one() {
-        p = primes::gen_prime(key_length/2, rounds);
+        p = primes::gen_prime(key_length / 2, rounds);
     }
 
-    let mut q = primes::gen_prime(key_length - key_length/2, rounds);
+    let mut q = primes::gen_prime(key_length - key_length / 2, rounds);
     while &q % &e == BigUint::one() {
-        q = primes::gen_prime(key_length - key_length/2, rounds);
+        q = primes::gen_prime(key_length - key_length / 2, rounds);
     }
 
     let n = &p * &q;
@@ -35,8 +35,8 @@ pub fn rsa_generate_keypair(key_length: u64, rounds: u64) -> (RSAPublicKey, RSAP
 
     let d = modinv(&e, &et).unwrap();
 
-    let public_key = RSAPublicKey{e: e.to_bytes_be(), n: n.to_bytes_be()};
-    let private_key = RSAPrivateKey{d: d.to_bytes_be(), n: n.to_bytes_be()};
+    let public_key = RSAPublicKey { e: e.to_bytes_be(), n: n.to_bytes_be() };
+    let private_key = RSAPrivateKey { d: d.to_bytes_be(), n: n.to_bytes_be() };
 
     (public_key, private_key)
 }
@@ -78,8 +78,7 @@ fn modinv(a: &BigUint, m: &BigUint) -> Option<BigUint> {
 fn egcd(a: &BigInt, b: &BigInt) -> (BigInt, BigInt, BigInt) {
     if a == &BigInt::zero() {
         (b.clone(), BigInt::zero(), BigInt::one())
-    }
-    else {
+    } else {
         let (g, x, y) = egcd(&(b % a), a);
         (g, y - (b / a) * &x, x)
     }
@@ -87,7 +86,7 @@ fn egcd(a: &BigInt, b: &BigInt) -> (BigInt, BigInt, BigInt) {
 
 #[test]
 fn test_rsa() {
-    let (public_key, private_key) = rsa_generate_keypair(2048, 16);
+    let (public_key, private_key) = rsa_generate_keypair(3, 2048, 16);
 
     let plaintext = b"Hello there";
 
@@ -96,5 +95,4 @@ fn test_rsa() {
     let decoded_ciphertext = rsa_decrypt(ciphertext.as_slice(), private_key);
 
     assert_eq!(plaintext, decoded_ciphertext.as_slice());
-
 }
