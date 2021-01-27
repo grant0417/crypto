@@ -1,12 +1,55 @@
 use crate::utils;
 use std::convert::TryInto;
 
+const fn rotl8(x: u8, shift: u8) -> u8 {
+    (x << shift) | (x >> (8 - shift))
+}
+
+/// Constructs the SBOX and SBOX_INV
+const fn construct_sbox() -> ([u8; 256], [u8; 256]) {
+    let mut sbox = [0; 256];
+    let mut inv_sbox = [0; 256];
+
+    let mut p: u8 = 1;
+    let mut q: u8 = 1;
+
+    loop {
+        p = p ^ (p << 1) ^ (if p & 0x80 == 0 { 0 } else { 0x1B });
+
+        q ^= q << 1;
+        q ^= q << 2;
+        q ^= q << 4;
+        q ^= if q & 0x80 == 0 { 0 } else { 0x09 };
+
+        let s = q ^ rotl8(q, 1) ^ rotl8(q, 2) ^ rotl8(q, 3) ^ rotl8(q, 4) ^ 0x63;
+
+        sbox[p as usize] = s;
+        inv_sbox[s as usize] = p;
+
+        if p == 1 {
+            break;
+        }
+    }
+
+    sbox[0] = 0x63;
+    (sbox, inv_sbox)
+}
+
+/// A lookup table build statically for the AES substitution box.
+/// The first part of the tuple is the s-box and the second part is
+/// the inverse s-box.
+///
+/// https://en.wikipedia.org/wiki/Rijndael_S-box
+static SBOXS: ([u8; 256], [u8; 256]) = construct_sbox();
+static SBOX: [u8; 256] = SBOXS.0;
+static SBOX_INV: [u8; 256] = SBOXS.1;
+
 /// Shifts `row` left by `shift` in the block `block`.
 ///
 /// Panics if `row` is >3
 fn shift_row_left(block: &mut [u8], row: usize, shift: usize) {
     if row > 3 {
-        panic!("Row index out of range")
+        panic!("Row index out of range");
     }
     let shift = shift % 4;
     match shift {
@@ -47,47 +90,6 @@ fn columns_of_block(block: &mut [u8], column: usize) -> &mut [u8] {
         3 => &mut block[12..=15],
         _ => panic!("Index out of range."),
     }
-}
-
-const fn rotl8(x: u8, shift: u8) -> u8 {
-    (x << shift) | (x >> (8 - shift))
-}
-
-lazy_static! {
-    /// A lookup table build statically for the AES substitution box.
-    /// The first part of the tuple is the s-box and the second part is
-    /// the inverse s-box.
-    ///
-    /// https://en.wikipedia.org/wiki/Rijndael_S-box
-    static ref SBOX: ([u8; 256], [u8; 256]) = {
-        let mut sbox = [0; 256];
-        let mut inv_sbox = [0; 256];
-
-        let mut p: u8 = 1;
-        let mut q: u8 = 1;
-
-        loop {
-            p = p ^ (p << 1) ^ (if p & 0x80 == 0 { 0 } else { 0x1B });
-
-            q ^= q << 1;
-            q ^= q << 2;
-            q ^= q << 4;
-            q ^= if q & 0x80 == 0 { 0 } else { 0x09 };
-
-            let s = q ^ rotl8(q, 1) ^ rotl8(q, 2) ^ rotl8(q, 3) ^ rotl8(q, 4) ^ 0x63;
-
-            sbox[p as usize] = s;
-            inv_sbox[s as usize] = p;
-
-            if p == 1 {
-                break;
-            }
-        }
-
-        sbox[0] = 0x63;
-
-        (sbox, inv_sbox)
-    };
 }
 
 /// Modes of AES
@@ -378,7 +380,7 @@ fn sub_word(word: u32) -> u32 {
     let bytes: Vec<u8> = word
         .to_ne_bytes()
         .iter()
-        .map(|b| SBOX.0[*b as usize])
+        .map(|b| SBOX[*b as usize])
         .collect();
 
     u8_slice_to_u32(bytes.as_slice()).unwrap()
@@ -427,14 +429,14 @@ fn inv_final_round(block: &mut [u8], expand_key: &[u8]) {
 /// Substitutes the bytes in a block with the s-box value.
 fn sub_bytes(block: &mut [u8]) {
     for byte in block {
-        *byte = SBOX.0[*byte as usize];
+        *byte = SBOX[*byte as usize];
     }
 }
 
 /// Substitutes the bytes in a block with the inverse s-box value.
 fn inv_sub_bytes(block: &mut [u8]) {
     for byte in block {
-        *byte = SBOX.1[*byte as usize];
+        *byte = SBOX_INV[*byte as usize];
     }
 }
 
@@ -676,14 +678,14 @@ fn test_round() {
 fn test_sbox() {
     for i in 0..16 {
         for j in 0..16 {
-            print!("{:02x} ", SBOX.0[i * 16 + j]);
+            print!("{:02x} ", SBOX[i * 16 + j]);
         }
         println!()
     }
     println!();
     for i in 0..16 {
         for j in 0..16 {
-            print!("{:02x} ", SBOX.1[i * 16 + j]);
+            print!("{:02x} ", SBOX_INV[i * 16 + j]);
         }
         println!()
     }

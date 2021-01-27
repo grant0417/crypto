@@ -3,10 +3,6 @@
 
 #![warn(missing_copy_implementations, missing_debug_implementations, missing_docs, trivial_casts, trivial_numeric_casts)]
 
-#[macro_use]
-extern crate lazy_static;
-
-
 /// [Advanced Encryption Standard (AES)](https://en.wikipedia.org/wiki/Advanced_Encryption_Standard)
 ///
 /// A block cipher also known as Rijndael

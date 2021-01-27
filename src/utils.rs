@@ -24,7 +24,7 @@ pub fn bytes_to_hex(bytes: &[u8]) -> String {
 }
 
 /// Converts a string to bytes
-pub fn str_to_bytes(str: &str) -> &[u8] {
+pub const fn str_to_bytes(str: &str) -> &[u8] {
     str.as_bytes()
 }
 
