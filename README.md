@@ -17,6 +17,8 @@ dependent on `crypto::utils`, the Rust standard library, and `num`.
 * `crypto::cryptanalysis` - Tools to attack crypto systems.
 * `crypto::utils` - Wrappers and utilities for working with base64, hex, byte arrays, and random number generators.
 
+<!--
 ## Todo
 
 * `crypyo::hash` - An implementation of common hashing function, MD5, SHA, etc.
+-->
